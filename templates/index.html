@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>班佛定律 CSV 分析</title>
+    <style>
+      :root {
+        --bg1: #f4f7fb;
+        --bg2: #eaf1ff;
+        --primary: #2d6cdf;
+        --primary-dark: #1f4fa8;
+        --accent: #f59f00;
+        --text: #1f2937;
+        --muted: #58657a;
+        --card: #ffffff;
+        --line: #dfe7f5;
+        --error: #b42318;
+        --error-bg: #fef3f2;
+      }
+
+      * { box-sizing: border-box; }
+      body {
+        margin: 0;
+        font-family: "Segoe UI", "PingFang TC", sans-serif;
+        background: linear-gradient(135deg, var(--bg1), var(--bg2));
+        color: var(--text);
+      }
+      .container {
+        max-width: 1200px;
+        margin: 30px auto;
+        padding: 24px;
+      }
+      .card {
+        background: var(--card);
+        border: 1px solid var(--line);
+        border-radius: 18px;
+        box-shadow: 0 12px 30px rgba(22, 34, 66, 0.08);
+        padding: 28px;
+      }
+      h1 {
+        margin-top: 0;
+        font-size: clamp(1.9rem, 2vw, 2.6rem);
+      }
+      .sub {
+        color: var(--muted);
+        margin: 8px 0 22px;
+      }
+      .upload-box {
+        border: 2px dashed #a8c0ff;
+        background: #f8faff;
+        padding: 22px;
+        border-radius: 12px;
+        margin-bottom: 24px;
+      }
+      .upload-form {
+        display: flex;
+        gap: 12px;
+        flex-wrap: wrap;
+        align-items: center;
+      }
+      input[type="file"] {
+        flex: 1 1 320px;
+        min-width: 220px;
+        padding: 12px 14px;
+        border: 1px solid var(--line);
+        border-radius: 10px;
+        background: white;
+      }
+      button {
+        border: none;
+        background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+        color: white;
+        font-size: 1rem;
+        font-weight: 600;
+        padding: 12px 24px;
+        border-radius: 10px;
+        cursor: pointer;
+        transition: transform 0.15s ease;
+      }
+      button:hover {
+        transform: translateY(-1px);
+      }
+      .error {
+        background: var(--error-bg);
+        color: var(--error);
+        border: 1px solid #f3c4be;
+        border-radius: 10px;
+        padding: 12px 14px;
+        margin-bottom: 18px;
+        font-weight: 600;
+      }
+      .summary {
+        display: flex;
+        gap: 16px;
+        flex-wrap: wrap;
+        margin: 18px 0 22px;
+      }
+      .pill {
+        background: #edf4ff;
+        color: var(--primary-dark);
+        border: 1px solid #cfe0ff;
+        border-radius: 999px;
+        padding: 8px 14px;
+        font-weight: 600;
+      }
+      table {
+        width: 100%;
+        border-collapse: collapse;
+        margin-top: 16px;
+        overflow: hidden;
+        border-radius: 12px;
+        background: white;
+      }
+      th, td {
+        padding: 12px 10px;
+        border-bottom: 1px solid var(--line);
+        text-align: center;
+      }
+      th {
+        background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+        color: white;
+      }
+      tr:nth-child(even) {
+        background: #f9fbff;
+      }
+      .chart-wrap {
+        margin-top: 28px;
+        text-align: center;
+      }
+      .chart-wrap img {
+        max-width: 100%;
+        border-radius: 12px;
+        border: 1px solid var(--line);
+        box-shadow: 0 12px 24px rgba(43, 61, 90, 0.08);
+      }
+      .muted-note {
+        color: var(--muted);
+        margin-top: 20px;
+      }
+      @media (max-width: 700px) {
+        .container {
+          padding: 14px;
+        }
+        .card {
+          padding: 18px;
+        }
+        .upload-form {
+          flex-direction: column;
+          align-items: stretch;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <div class="card">
+        <h1>班佛定律分析工具</h1>
+        <p class="sub">上傳台灣證交所 CSV，分析收盤價首位數字分佈，並與班佛定律比較。</p>
+
+        {% if error %}
+          <div class="error">{{ error }}</div>
+        {% endif %}
+
+        <div class="upload-box">
+          <form method="POST" enctype="multipart/form-data" class="upload-form">
+            <input type="file" name="csv_file" accept=".csv" required />
+            <button type="submit">開始分析</button>
+          </form>
+        </div>
+
+        {% if table_html %}
+          <div class="summary">
+            <div class="pill">總資料筆數：{{ total_count }}</div>
+          </div>
+
+          <h2>分析結果</h2>
+          {{ table_html | safe }}
+
+          <div class="chart-wrap">
+            <h3>首位數字比較圖</h3>
+            <img src="data:image/png;base64,{{ chart_data }}" alt="班佛定律柱狀圖" />
+          </div>
+        {% endif %}
+
+        <p class="muted-note">
+          說明：本網站會自動尋找 CSV 中最可能的收盤價欄位，抽取每筆資料的首位數字，統計 1～9 的出現比例，並顯示實際值與班佛定律理論值對照。
+        </p>
+      </div>
+    </div>
+  </body>
+</html>
