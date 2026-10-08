@@ -1,0 +1,1 @@
+services:\n  - type: web\n    name: benford-law-analyzer\n    runtime: python311\n    buildCommand: pip install -r requirements.txt\n    startCommand: gunicorn app:app\n    envVars:\n      - key: PYTHON_VERSION\n        value: 3.11\n
